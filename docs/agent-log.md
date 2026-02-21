@@ -311,3 +311,65 @@ DevTools, springdoc version, actuator info, scan scope, redundant driver-class-n
 
 ### Rejected: EAGER fetch for any association
 **Why**: Multiple reviewers confirmed LAZY as universal rule. Even for Book.authors which is always needed in responses — `@BatchSize` handles the N+1 concern while LAZY prevents unnecessary loading in service-layer operations that don't need author data.
+
+---
+
+## Iteration 11: Final Pre-Implementation Validation
+
+**Prompt**: "act as task-completion-validator and validate development-plan.md according to initial-task.md if development plan met all ACs. validate the same files as Karen before starting implementation"
+
+**Agent**: task-completion-validator
+
+**AI Suggestion**: **CLEARED FOR IMPLEMENTATION** with 4 housekeeping fixes:
+1. Agent log location mismatch (plan says root, file is in `docs/`)
+2. Maven scaffold (`pom.xml`, `.mvn/`, `target/`, `com.company.Main`) conflicts with Gradle plan
+3. `.gitignore` missing Gradle-specific entries
+4. Agent log `.md` extension deviation not in Section 13 Known Deviations
+
+Scorecard: 24 PASS, 2 PARTIAL (CI badge + agent log filename — both intentional deviations), 0 FAIL out of 26 checkpoints.
+
+**Decision**: All 4 fixes accepted and applied
+
+**Rationale**: These were all genuine inconsistencies between the plan and disk state. Fix 2 (Maven cleanup) would have blocked Day 1 scaffolding if not addressed.
+
+---
+
+## Iteration 12: Applying Pre-Implementation Fixes (v5 -> v6)
+
+**Prompt**: "yes apply these fixes using appropriate skills"
+
+**Agent**: developer-kit-java:spring-boot-backend-development-expert
+
+**AI Suggestion**: Applied 6 changes (Fix 51-56):
+- Fix 51: All `agent-log.md` references updated to `docs/agent-log.md`
+- Fix 52: "Delete Maven scaffold" added as first Day 1 task
+- Fix 53: "Replace .gitignore" added as second Day 1 task
+- Fix 54: Deviation #4 added to Section 13 (`.md` vs `.txt` extension)
+- Fix 55: Cross-reference "Section 5.5" corrected to "Section 6.5"
+- Fix 56: git init task updated to `[x] Git repository (already initialized)`
+
+**Decision**: Accepted — plan now at revision 6
+
+**Rationale**: All fixes were mechanical corrections aligning the plan with the actual project state. No architectural decisions were changed.
+
+---
+
+## Review Pipeline — Final Statistics
+
+| Pass | Agent | Issues Found | Fixed |
+|------|-------|--------------|-------|
+| 1 | ultrathink-debugger | 6 risks | Informational |
+| 2 | Jenny | Plan created (v1) | N/A |
+| 3 | Karen (v1) | 13 issues | 19 fixes applied |
+| 4 | Karen (v2) | 4 residual (all LOW) | Approved |
+| 5 | task-completion-validator | 3 items | Queued |
+| 6 | general-software-architect | Extension (+1,373 lines) | v3 |
+| 7 | java-software-architect-review | 21 issues | 21 fixes (v4) |
+| 8 | spring-boot-code-review-expert | 29 issues | 29 fixes (v5) |
+| 9 | Karen (folder structure audit) | 14 path mismatches | 14 fixes |
+| 10 | task-completion-validator (final) | 4 housekeeping items | 6 fixes (v6) |
+
+**Total issues identified**: 76+
+**Total fixes applied**: 75
+**Final plan revision**: 6 (~3,050 lines)
+**Plan status**: CLEARED FOR IMPLEMENTATION

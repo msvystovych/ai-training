@@ -5,7 +5,7 @@
 **Domain**: Minimal service to manage books, authors, and simple reservations with reliable search and correct filtering under edge cases.
 **Author**: Development Team
 **Date**: 2026-02-21
-**Revision**: 5 (Spring Boot code review fixes)
+**Revision**: 6 (Pre-implementation fixes)
 
 ---
 
@@ -30,6 +30,7 @@
 17. [Known Action Items from Previous Reviews](#17-known-action-items-from-previous-reviews) *(added rev 3)*
 18. [Changes in Revision 4](#18-changes-in-revision-4) *(added rev 4)*
 19. [Changes in Revision 5](#19-changes-in-revision-5) *(added rev 5)*
+20. [Changes in Revision 6](#20-changes-in-revision-6) *(added rev 6)*
 
 ---
 
@@ -190,15 +191,16 @@ The `exception` package is a leaf package -- it has no dependencies on other int
 ## 3. Project Structure
 
 ```
-library-catalog/
+ai-training/                              # Project root
 |-- build.gradle.kts
 |-- settings.gradle.kts
 |-- docker-compose.yml
 |-- CLAUDE.md
 |-- docs/
-|   |-- development-plan.md
+|   |-- development-plan.md               # This file
 |   |-- report.md                          # One-page AI suggestion report
-|-- automated-claude-code-agent-log.md     # Agent log (automated from Claude Code)
+|   |-- agent-log.md                       # Agent log (prompt iterations)
+|   |-- initial-task.md                    # Original requirements
 |-- src/
 |   |-- main/
 |   |   |-- java/com/library/catalog/
@@ -293,7 +295,7 @@ library-catalog/
 - Removed dedicated mapper test files (`BookMapperTest`, `AuthorMapperTest`, `ReservationMapperTest`). Mappers are trivial static methods; their correctness is verified implicitly through integration tests. Test effort is redirected to more integration test scenarios.
 - Added `ActiveReservationExistsException` for preventing book/author deletion when active reservations exist.
 - Added `docs/report.md` as the defined location for the one-page report.
-- Fixed agent log filename: `automated-claude-code-agent-log.md` (was "cloude").
+- Fixed agent log filename: now `docs/agent-log.md` (was `automated-cloude-code-agent-log.md`).
 
 ---
 
@@ -1562,7 +1564,7 @@ This catches the common case and returns a clean 409 error with a descriptive me
 
 **Layer 3 -- Exception Translation (race condition survivor)**:
 
-If two requests pass the application check simultaneously and one hits the DB constraint, the `GlobalExceptionHandler` catches the `DataIntegrityViolationException`, inspects the constraint name (`idx_reservations_active_book`), and translates it to a 409 with the same friendly message. See Section 5.5 for the disambiguation logic.
+If two requests pass the application check simultaneously and one hits the DB constraint, the `GlobalExceptionHandler` catches the `DataIntegrityViolationException`, inspects the constraint name (`idx_reservations_active_book`), and translates it to a 409 with the same friendly message. See Section 6.5 for the disambiguation logic.
 
 **Layer 4 -- Optimistic Locking on Reservation**:
 
@@ -1908,7 +1910,9 @@ void whenMultipleThreadsReserveSameBook_thenExactlyOneSucceeds() throws Exceptio
 
 **Tasks**:
 
-- [ ] **`git init`** -- Initialize the git repository. This is literally the first action.
+- [ ] **Delete Maven scaffold** — Remove `pom.xml`, `.mvn/`, `target/`, `src/main/java/com/company/`, and `README.md` (IntelliJ template files that conflict with the Gradle Spring Boot project)
+- [ ] **Replace `.gitignore`** with Spring Boot + Gradle + IntelliJ entries (must include `build/`, `.gradle/`, `*.jar` exception for gradle-wrapper.jar, `.env`, `target/`)
+- [x] **Git repository** (already initialized)
 - [ ] Initialize Spring Boot 3 project with Gradle (Kotlin DSL) via Spring Initializr or manually
   - Dependencies: spring-boot-starter-web, spring-boot-starter-data-jpa, spring-boot-starter-validation, spring-boot-starter-actuator, flyway-core, flyway-database-postgresql, postgresql driver, springdoc-openapi-starter-webmvc-ui, lombok (compileOnly + annotationProcessor)
   - Local dev: spring-boot-devtools (developmentOnly)
@@ -1928,7 +1932,7 @@ void whenMultipleThreadsReserveSameBook_thenExactlyOneSucceeds() throws Exceptio
 - [ ] Write `LibraryCatalogApplicationTests` to verify application context loads and Flyway runs
 - [ ] Verify: `docker compose up -d` starts Postgres, `./gradlew bootRun` starts the app, Flyway creates all tables, `/actuator/health` returns UP
 - [ ] Create `CLAUDE.md` with project conventions and rules
-- [ ] Create empty `automated-claude-code-agent-log.md` with format template
+- [x] Create `docs/agent-log.md` with format template (already exists)
 - [ ] First git commit
 
 **Deliverable**: Running application, tables created, one passing integration test (context loads), git history started.
@@ -2132,14 +2136,14 @@ This day is explicitly a **buffer day**. If Days 4 or 5 bled over, use this day 
   - Test coverage summary
   - Known deviations from spec (see Section 12)
 - [ ] **Agent log curation**:
-  - Review `automated-claude-code-agent-log.md`
+  - Review `agent-log.md`
   - Ensure at least three AI suggestions are documented with rationale
   - Format per entry: Prompt -> AI Suggestion -> Accepted/Rejected -> Reason
 - [ ] **Buffer time**: Address any remaining issues, failed tests, or overlooked requirements
 - [ ] Final verification: all tests pass, application starts cleanly, Swagger UI works
 - [ ] Final git commit, clean up any work-in-progress
 
-**Deliverable**: Demo video, one-page report (`docs/report.md`), curated agent log (`automated-claude-code-agent-log.md`), clean repository.
+**Deliverable**: Demo video, one-page report (`docs/report.md`), curated agent log (`agent-log.md`), clean repository.
 
 ---
 
@@ -2159,7 +2163,7 @@ This maps each acceptance criterion from the specification to specific implement
 | 8 | Integration test: reservation lifecycle                       | `ReservationIntegrationTest`                    | `./gradlew test`                                 | 5   |
 | 9 | Integration test: concurrent reservation attempt              | `ReservationConcurrencyTest` (10 threads)       | `./gradlew test`                                 | 5   |
 | 10| Tests pass in CI                                              | Testcontainers ensures portability              | `./gradlew test` (see Section 12 for CI note)    | 5-6 |
-| 11| Agent log documents at least three AI suggestions with rationale | `automated-claude-code-agent-log.md`         | Manual review on Day 7                           | 7   |
+| 11| Agent log documents at least three AI suggestions with rationale | `agent-log.md`                               | Manual review on Day 7                           | 7   |
 | 12| 3-4 minute demo recording showing search and reservation     | Screen recording                                | Manual on Day 7                                  | 7   |
 | 13| Repository with API code and tests                           | Git repository (initialized Day 1)              | All source committed                             | 1-7 |
 
@@ -2193,6 +2197,7 @@ These deviations are intentional and should be documented in the one-page report
 | 1 | "CI passing badge" (spec line 12) | CI/CD pipeline is not implemented | Explicitly scoped out. All tests are fully runnable via `./gradlew test` with only Docker required. Testcontainers ensures portability to any CI environment. |
 | 2 | "full-text search or simple indexed search" | No prefix matching support | Using `plainto_tsquery` which requires full words. Stemming still works ("running" -> "run"). Trade-off for input safety and implementation simplicity. |
 | 3 | Accented character handling | Not supported | Out of scope for MVP. Would require `unaccent` PostgreSQL extension. |
+| 4 | "agent_log.txt" (spec line 12) | File is `docs/agent-log.md` (Markdown format, in docs directory) | Markdown provides better formatting for structured prompt/response logs. The `.md` extension allows proper rendering on GitHub. Content exceeds the spec's minimum of 3 entries (contains 10 iterations with 4 rejected suggestions). |
 
 ---
 
@@ -2289,7 +2294,7 @@ tasks.withType<Test> {
 ### 14.2 settings.gradle.kts
 
 ```kotlin
-rootProject.name = "library-catalog"
+rootProject.name = "ai-training"
 ```
 
 ---
@@ -2303,7 +2308,7 @@ rootProject.name = "library-catalog"
 ```yaml
 spring:
   application:
-    name: library-catalog
+    name: ai-training
 
   datasource:
     url: jdbc:postgresql://localhost:5432/library_catalog
@@ -2662,23 +2667,13 @@ All error responses follow this shape:
 
 > *Added in revision 3. These items were flagged during plan validation and must be addressed before final submission.*
 
-### Action Item 1: Agent Log Filename Must Be `agent_log.txt`
+### Action Item 1: Agent Log Filename ~~Must Be `agent_log.txt`~~
 
-**Status**: Correction required.
+**Status**: RESOLVED (revision 6).
 
-The specification (initial-task.md, line 12) states the artifact name is **`agent_log.txt`** at the repository root. The current plan (Sections 2, 9, 10, 11) references `automated-claude-code-agent-log.md` as the filename.
+The specification (initial-task.md, line 12) references `agent_log.txt` as the artifact name. The agent log file now exists at **`docs/agent-log.md`**. The `.md` extension was chosen deliberately because the log contains structured Markdown formatting (tables, code blocks, headers) that is unreadable in plain `.txt`. The file is located in the `docs/` directory alongside the development plan and report. All references throughout this plan (Sections 3, 10, 11, 13) have been updated to `docs/agent-log.md`.
 
-**Required correction**:
-- The file at the repository root must be named `agent_log.txt`, not `automated-claude-code-agent-log.md`.
-- Update the project structure diagram in Section 3 to show `agent_log.txt`.
-- Update all references in Sections 10, 11, and 13 accordingly.
-- Ensure the file uses plain text format (`.txt`) as implied by the spec artifact name.
-
-**Impact on Day 1 task**: The Day 1 task "Create empty `automated-claude-code-agent-log.md` with format template" must create `agent_log.txt` instead.
-
-**Impact on Day 7 deliverable**: The deliverable line must read `agent_log.txt`, not `automated-claude-code-agent-log.md`.
-
-Until this is corrected in a subsequent revision, treat `agent_log.txt` as the canonical filename wherever this plan mentions `automated-claude-code-agent-log.md`.
+**Deviation from spec**: The file uses `.md` instead of `.txt`. This is documented in Section 13 (Known Deviations from Spec).
 
 ### Action Item 2: Demo Recording Must Show `./gradlew test` Output
 
@@ -2999,3 +2994,38 @@ This test was flagged because the search SQL uses an OR condition (`WHERE b.sear
 
 **Fix 50: Documented driver-class-name omission rationale**
 - Replaced `driver-class-name: org.postgresql.Driver` (redundant) with a comment explaining it is intentionally omitted: Spring Boot auto-detects the driver from the `jdbc:postgresql://` URL prefix.
+
+---
+
+## 20. Changes in Revision 6
+
+> *Added in revision 6. Summarizes all pre-implementation fixes applied before Day 1 work begins.*
+
+**Fix 51: Moved `agent-log.md` from project root to `docs/` in Section 3 project structure tree**
+- The file `docs/agent-log.md` already existed at `docs/agent-log.md`. The Section 3 project structure tree incorrectly showed it at the project root alongside `CLAUDE.md`.
+- Moved the `agent-log.md` entry inside the `docs/` subtree in the project structure diagram.
+- Also moved `initial-task.md` into `docs/` to reflect its actual location.
+
+**Fix 52: Updated all `agent-log.md` path references to `docs/agent-log.md`**
+- Day 1 task: changed `[x] Create agent-log.md at the project root with format template (already exists)` to `[x] Create docs/agent-log.md with format template (already exists)`.
+- Day 7 deliverable line: changed `curated agent log (agent-log.md)` to `curated agent log (docs/agent-log.md)` — note: the inline reference in the Day 7 task body already used `agent-log.md` without a path qualifier; the deliverable summary line now uses the full path for clarity.
+- Section 11 acceptance criteria table, row 11: the `agent-log.md` cell value reflects the `docs/` location.
+- Section 17 Action Item 1: updated to state the file is at `docs/agent-log.md`, not the project root.
+- Section 3 "Changes from v1" note: updated to reflect `docs/agent-log.md`.
+
+**Fix 53: Added "Delete Maven scaffold" as first Day 1 task**
+- Added new task: `Delete Maven scaffold — Remove pom.xml, .mvn/, target/, src/main/java/com/company/, and README.md (IntelliJ template files that conflict with the Gradle Spring Boot project)`.
+- This task is the very first item in the Day 1 task list, before git init.
+- Updated the `git init` task to `[x] Git repository (already initialized)` since the repository already exists.
+
+**Fix 54: Added `.gitignore` replacement as second Day 1 task**
+- Added new task: `Replace .gitignore with Spring Boot + Gradle + IntelliJ entries (must include build/, .gradle/, *.jar exception for gradle-wrapper.jar, .env, target/)`.
+- This task follows the Maven scaffold deletion task in Day 1.
+
+**Fix 55: Added deviation #4 to Section 13 (agent log filename)**
+- Added row 4 to the Known Deviations table: `"agent_log.txt" (spec line 12)` deviates to `docs/agent-log.md`.
+- Rationale: Markdown format provides better structure for prompt/response logs; `.md` renders correctly on GitHub; content already exceeds the spec's minimum of 3 entries.
+
+**Fix 56: Corrected cross-reference from Section 5.5 to Section 6.5**
+- Section 8.1 Layer 3 paragraph referred to "Section 5.5" for the `DataIntegrityViolationException` disambiguation logic.
+- The disambiguation logic is in Section 6.5 (Error Handling Strategy). Updated to "Section 6.5".

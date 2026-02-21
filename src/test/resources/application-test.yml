@@ -1,0 +1,15 @@
+spring:
+  flyway:
+    enabled: true      # Flyway must run in tests to create the schema
+    clean-on-validation-error: false
+
+  jpa:
+    show-sql: false    # Keep test output clean
+    hibernate:
+      ddl-auto: validate
+
+logging:
+  level:
+    com.library.catalog: WARN    # Suppress DEBUG output during tests
+    org.testcontainers: WARN
+    com.github.dockerjava: WARN

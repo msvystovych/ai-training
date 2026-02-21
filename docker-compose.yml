@@ -1,0 +1,24 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: library_catalog_db
+    environment:
+      POSTGRES_DB: library_catalog
+      POSTGRES_USER: library_user
+      POSTGRES_PASSWORD: library_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      # Named volume: data persists across `docker compose down` / `up` cycles.
+      # Use `docker compose down -v` to wipe data and start fresh.
+      - library_catalog_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U library_user -d library_catalog"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  library_catalog_data:
