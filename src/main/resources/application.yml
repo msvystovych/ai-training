@@ -3,7 +3,7 @@ spring:
     name: ai-training
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/library_catalog
+    url: jdbc:postgresql://localhost:5433/library_catalog
     username: library_user
     password: library_pass
     # driver-class-name is intentionally omitted: Spring Boot auto-detects

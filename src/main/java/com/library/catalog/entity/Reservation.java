@@ -65,7 +65,7 @@ import java.time.Instant;
 @Table(name = "reservations")
 @Getter
 @Setter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @EqualsAndHashCode(of = "id", callSuper = false)
 public class Reservation extends BaseEntity {
 

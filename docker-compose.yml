@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   postgres:
     image: postgres:16-alpine
@@ -9,7 +7,7 @@ services:
       POSTGRES_USER: library_user
       POSTGRES_PASSWORD: library_pass
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       # Named volume: data persists across `docker compose down` / `up` cycles.
       # Use `docker compose down -v` to wipe data and start fresh.

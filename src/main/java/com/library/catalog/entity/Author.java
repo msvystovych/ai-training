@@ -55,7 +55,7 @@ import java.util.Set;
 @Table(name = "authors")
 @Getter
 @Setter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @EqualsAndHashCode(of = "id", callSuper = false)
 public class Author extends BaseEntity {
 

@@ -70,7 +70,7 @@ import java.util.Set;
 @Table(name = "books")
 @Getter
 @Setter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @EqualsAndHashCode(of = "id", callSuper = false)
 public class Book extends BaseEntity {
 
